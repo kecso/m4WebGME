@@ -1,0 +1,25 @@
+{
+  "variables": {
+    "a": "/s/f/m/4/g"
+  },
+  "commands": [
+    {
+      "command": "deleteNode",
+      "node": "a"
+    },
+    {
+      "command": "commit"
+    },
+    {
+      "command": "compare",
+      "start": 0,
+      "end": 1,
+      "measure": true
+    }
+  ],
+  "name": "delete node",
+  "size": 100,
+  "depth": 5,
+  "repetition": 1000,
+  "baseSeed": "./seeds/l5_100.webgmex"
+}

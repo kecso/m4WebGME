@@ -1,0 +1,30 @@
+{
+  "name": "m4webgme",
+  "version": "0.1.0",
+  "description": "performance measurements for WebGME",
+  "main": "test.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://kecso@github.com/kecso/m4WebGME.git"
+  },
+  "keywords": [
+    "WebGME",
+    "performance",
+    "measurement",
+    "test"
+  ],
+  "author": "kecso <tkecskes@isis.vanderbilt.edu>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kecso/m4WebGME/issues"
+  },
+  "homepage": "https://github.com/kecso/m4WebGME#readme",
+  "dependencies": {
+    "commander": "^2.12.2",
+    "q": "^1.5.1",
+    "webgme-engine": "^2.18.5"
+  }
+}
