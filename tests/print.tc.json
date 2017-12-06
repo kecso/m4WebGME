@@ -1,14 +1,17 @@
 {
   "variables": {
-    "a": "/s/b/m/4/g"
+    "a": "/s/b/m/4/g",
+    "p": "/s/b/m/4"
   },
   "commands": [
     {
-      "command": "deleteNode",
-      "node": "a"
+      "command": "moveNode",
+      "node": "a",
+      "parent": "p"
     },
     {
-      "command": "commit"
+      "command": "commit",
+      "printPatch": "commit.out.json"
     },
     {
       "command": "compare",
@@ -17,9 +20,9 @@
       "measure": true
     }
   ],
-  "name": "delete node",
+  "name": "move node",
   "size": 10000,
   "depth": 5,
-  "repetition": 10,
+  "repetition": 1,
   "baseSeed": "./seeds/l5_10000.webgmex"
 }

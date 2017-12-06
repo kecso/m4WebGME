@@ -1,13 +1,13 @@
 {
   "variables": {
-    "a": "/s/f/m/4/g"
+    "a": "/U",
+    "r":""
   },
   "commands": [
     {
-      "command": "setAttribute",
+      "command": "copyNode",
       "node": "a",
-      "name": "name",
-      "value": "changed"
+      "parent":"r"
     },
     {
       "command": "commit"
@@ -19,9 +19,9 @@
       "measure": true
     }
   ],
-  "name": "change property",
+  "name": "copy node",
   "size": 1000,
-  "depth": 5,
-  "repetition": 10,
-  "baseSeed": "./seeds/l5_1000.webgmex"
+  "depth": 1,
+  "repetition": 1000,
+  "baseSeed": "./seeds/f_1000.webgmex"
 }

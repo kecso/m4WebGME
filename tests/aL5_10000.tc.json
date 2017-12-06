@@ -1,13 +1,13 @@
 {
   "variables": {
-    "a": "/s/f/m/4/g"
+    "a": "/N",
+    "p": "/s/b/m/4"
   },
   "commands": [
     {
-      "command": "setAttribute",
-      "node": "a",
-      "name": "name",
-      "value": "changed"
+      "command": "createNode",
+      "base": "a",
+      "parent":"p"
     },
     {
       "command": "commit"
@@ -19,9 +19,9 @@
       "measure": true
     }
   ],
-  "name": "change property",
-  "size": 1000,
+  "name": "add node",
+  "size": 10000,
   "depth": 5,
   "repetition": 10,
-  "baseSeed": "./seeds/l5_1000.webgmex"
+  "baseSeed": "./seeds/l5_10000.webgmex"
 }

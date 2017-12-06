@@ -1,13 +1,13 @@
 {
   "variables": {
-    "a": "/s/f/m/4/g"
+    "a": "/z/q",
+    "p": "/z"
   },
   "commands": [
     {
-      "command": "setAttribute",
+      "command": "moveNode",
       "node": "a",
-      "name": "name",
-      "value": "changed"
+      "parent": "p"
     },
     {
       "command": "commit"
@@ -19,9 +19,9 @@
       "measure": true
     }
   ],
-  "name": "change property",
+  "name": "move node",
   "size": 1000,
-  "depth": 5,
+  "depth": 2,
   "repetition": 10,
-  "baseSeed": "./seeds/l5_1000.webgmex"
+  "baseSeed": "./seeds/l2_1000.webgmex"
 }

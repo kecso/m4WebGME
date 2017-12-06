@@ -1,11 +1,13 @@
 {
   "variables": {
-    "a": "/s/f/m/4/g"
+    "a": "/N",
+    "r":""
   },
   "commands": [
     {
-      "command": "deleteNode",
-      "node": "a"
+      "command": "createNode",
+      "base": "a",
+      "parent":"r"
     },
     {
       "command": "commit"
@@ -17,9 +19,9 @@
       "measure": true
     }
   ],
-  "name": "delete node",
+  "name": "add node",
   "size": 1000,
-  "depth": 5,
+  "depth": 1,
   "repetition": 100,
-  "baseSeed": "./seeds/l5_1000.webgmex"
+  "baseSeed": "./seeds/f_1000.webgmex"
 }

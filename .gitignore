@@ -5,7 +5,12 @@
 *csproj.user
 *.css.map
 
+\.idea
+
+blob_local_storage
+
 node_modules
+
 
 #
 package-lock.json

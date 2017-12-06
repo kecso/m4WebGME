@@ -6,10 +6,36 @@ var WebGME = require('webgme-engine'),
     importCli = require('webgme-engine/src/bin/import').main,
     Core = WebGME.requirejs('common/core/coreQ'),
     merger = WebGME.requirejs('common/core/users/merge'),
+    storageUtil = WebGME.requirejs('common/storage/util'),
     logger = require('webgme-engine/src/server/logger').create('m4WebGME', {transports: []}),
-    Q = require('q');
+    Q = require('q'),
+    fs = require('fs');
 
-logger.info = function(){};
+logger.info = function () {
+};
+
+function getChangedNodesFromPersisted(persisted, printPatches) {
+    var keys = Object.keys(persisted.objects),
+        i,
+        coreObjects = {};
+
+    for (i = 0; i < keys.length; i += 1) {
+        if (storageUtil.coreObjectHasOldAndNewData(persisted.objects[keys[i]])) {
+            coreObjects[keys[i]] = storageUtil.getPatchObject(persisted.objects[keys[i]].oldData,
+                persisted.objects[keys[i]].newData);
+        } else {
+            coreObjects[keys[i]] = persisted.objects[keys[i]].newData;
+        }
+    }
+
+    if (printPatches === true) {
+        logger.info(JSON.stringify(coreObjects, null, 2));
+    } else if (typeof printPatches === 'string') {
+        fs.appendFileSync(printPatches, JSON.stringify(coreObjects, null, 2), 'utf8');
+    }
+
+    return storageUtil.getChangedNodes(coreObjects, persisted.rootHash);
+}
 
 function importTestBaseSeed(baseSeed) {
     var deferred = Q.defer(),
@@ -34,7 +60,7 @@ function executeCommand(parameters) {
         core = parameters.core,
         root = parameters.root,
         variables = parameters.variables,
-        queue = variables.queue,
+        newNode,
         startTime = new Date().getTime(),
         timeStamp = function () {
             if (command.measure) {
@@ -62,6 +88,24 @@ function executeCommand(parameters) {
             timeStamp();
             deferred.resolve(parameters);
             break;
+        case 'copyNode':
+            core.copyNode(variables[command.node], variables[command.parent]);
+            timeStamp();
+            deferred.resolve(parameters);
+            break;
+        case 'createNode':
+            newNode = core.createNode({
+                parent: variables[command.parent],
+                base: variables[command.base],
+                guid: command.guid,
+                relid: command.relid
+            });
+            if (command.store) {
+                variables[command.store] = newNode;
+            }
+            timeStamp();
+            deferred.resolve(parameters);
+            break;
         case 'deleteNode':
             core.deleteNode(variables[command.node]);
             delete variables[command.node];
@@ -70,6 +114,14 @@ function executeCommand(parameters) {
             break;
         case 'commit':
             var persisted = core.persist(root);
+            if (command.print === true) {
+                console.log(JSON.stringify(persisted, null, 2));
+            } else if (typeof command.print === 'string') {
+                fs.appendFileSync(command.print, JSON.stringify(persisted, null, 2), 'utf8');
+            }
+            if (command.printPatch) {
+                logger.info(getChangedNodesFromPersisted(persisted, command.printPatch));
+            }
             parameters.project.makeCommit('master',
                 [parameters.queue[parameters.queue.length - 1]],
                 core.getHash(root),
@@ -267,7 +319,8 @@ function execute(gmeConfig, testParameters, callback) {
                 name: testParameters.name,
                 size: testParameters.size,
                 depth: testParameters.depth,
-                raw:parameters.measurements});
+                raw: parameters.measurements
+            });
         })
         .catch(deferred.reject);
 

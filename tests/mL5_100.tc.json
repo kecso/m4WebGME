@@ -1,13 +1,13 @@
 {
   "variables": {
-    "a": "/s/f/m/4/g"
+    "a": "/s/f/m/4/g",
+    "p": "/s/f/m/4"
   },
   "commands": [
     {
-      "command": "setAttribute",
+      "command": "moveNode",
       "node": "a",
-      "name": "name",
-      "value": "changed"
+      "parent":"p"
     },
     {
       "command": "commit"
@@ -19,9 +19,9 @@
       "measure": true
     }
   ],
-  "name": "change property",
-  "size": 1000,
+  "name": "move node",
+  "size": 100,
   "depth": 5,
-  "repetition": 10,
-  "baseSeed": "./seeds/l5_1000.webgmex"
+  "repetition": 1000,
+  "baseSeed": "./seeds/l5_100.webgmex"
 }

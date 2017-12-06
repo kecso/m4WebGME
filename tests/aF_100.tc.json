@@ -1,0 +1,27 @@
+{
+  "variables": {
+    "a": "/N",
+    "r":""
+  },
+  "commands": [
+    {
+      "command": "createNode",
+      "base": "a",
+      "parent":"r"
+    },
+    {
+      "command": "commit"
+    },
+    {
+      "command": "compare",
+      "start": 0,
+      "end": 1,
+      "measure": true
+    }
+  ],
+  "name": "add node",
+  "size": 100,
+  "depth": 1,
+  "repetition": 1000,
+  "baseSeed": "./seeds/f_100.webgmex"
+}

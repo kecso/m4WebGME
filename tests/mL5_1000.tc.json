@@ -1,13 +1,13 @@
 {
   "variables": {
-    "a": "/s/f/m/4/g"
+    "a": "/s/f/m/4/g",
+    "p":"/s/f/m/4"
   },
   "commands": [
     {
-      "command": "setAttribute",
+      "command": "moveNode",
       "node": "a",
-      "name": "name",
-      "value": "changed"
+      "parent":"p"
     },
     {
       "command": "commit"
@@ -19,7 +19,7 @@
       "measure": true
     }
   ],
-  "name": "change property",
+  "name": "move node",
   "size": 1000,
   "depth": 5,
   "repetition": 10,

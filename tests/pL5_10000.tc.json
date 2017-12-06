@@ -22,6 +22,6 @@
   "name": "change property",
   "size": 10000,
   "depth": 5,
-  "repetition": 1000,
+  "repetition": 10,
   "baseSeed": "./seeds/l5_10000.webgmex"
 }

@@ -1,13 +1,11 @@
 {
   "variables": {
-    "a": "/s/f/m/4/g"
+    "a": "/s/b/m/4/g"
   },
   "commands": [
     {
-      "command": "setAttribute",
-      "node": "a",
-      "name": "name",
-      "value": "changed"
+      "command": "deleteNode",
+      "node": "a"
     },
     {
       "command": "commit"
@@ -20,8 +18,8 @@
     }
   ],
   "name": "change property",
-  "size": 1000,
+  "size": 100,
   "depth": 5,
-  "repetition": 10,
-  "baseSeed": "./seeds/l5_1000.webgmex"
+  "repetition": 1,
+  "baseSeed": "./seeds/l5_10000.webgmex"
 }
