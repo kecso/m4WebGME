@@ -7,7 +7,10 @@ var WebGME = require('webgme-engine'),
     Core = WebGME.requirejs('common/core/coreQ'),
     merger = WebGME.requirejs('common/core/users/merge'),
     storageUtil = WebGME.requirejs('common/storage/util'),
+    RANDOM = WebGME.requirejs('common/util/random'),
+    REGEXP = WebGME.requirejs('common/regexp'),
     logger = require('webgme-engine/src/server/logger').create('m4WebGME', {transports: []}),
+    dataDiffer = require('./diff'),
     Q = require('q'),
     fs = require('fs');
 
@@ -28,6 +31,7 @@ function getChangedNodesFromPersisted(persisted, printPatches) {
         }
     }
 
+    console.log('regular:',Object.keys(coreObjects).length);
     if (printPatches === true) {
         logger.info(JSON.stringify(coreObjects, null, 2));
     } else if (typeof printPatches === 'string') {
@@ -35,6 +39,75 @@ function getChangedNodesFromPersisted(persisted, printPatches) {
     }
 
     return storageUtil.getChangedNodes(coreObjects, persisted.rootHash);
+}
+
+function traverseDataTree(project, rootHash, options, visitFn) {
+    var deferred = Q.defer(),
+        loadQueue = [rootHash],
+        ongoingVisits = 0,
+        timerId,
+        addToQueue,
+        error = null,
+        extendLoadQueue = function (dataNode) {
+            var keys = Object.keys(dataNode),
+                i;
+            for (i = 0; i < keys.length; i += 1) {
+                if (RANDOM.isValidRelid(keys[i]) && REGEXP.DB_HASH.test(dataNode[keys[i]])) {
+                    addToQueue.call(loadQueue, dataNode[keys[i]]);
+                }
+            }
+        },
+        visitNext = function (err) {
+            error = error || err;
+            ongoingVisits -= 1;
+            if (error && options.stopOnError) {
+                loadQueue = [];
+            }
+        },
+        dataLoaded = function (err, dataNode) {
+            error = error || err;
+            if (!err && dataNode) {
+                extendLoadQueue(dataNode);
+            }
+
+            if (!dataNode) {
+                visitNext(err);
+            } else if (!options.excludeRoot || dataNode[storageUtil.CONSTANTS.MONGO_ID] !== rootHash) {
+                visitFn(dataNode, visitNext);
+            }
+        };
+
+    options = options || {};
+    options.maxParallelLoad = options.maxParallelLoad || 100; //the amount of nodes we preload
+    options.excludeRoot = options.excludeRoot === true || false;
+    options.stopOnError = options.stopOnError === false ? false : true;
+
+    if (options.order === 'DFS') {
+        addToQueue = loadQueue.unshift;
+    } else {
+        addToQueue = loadQueue.push;
+    }
+
+    if (options.maxParallelLoad < 1 || options.order === 'DFS') {
+        options.maxParallelLoad = 1;
+    }
+
+    timerId = setInterval(function () {
+        if (loadQueue.length === 0 && ongoingVisits === 0) {
+            clearInterval(timerId);
+            if (error) {
+                deferred.reject(error);
+            } else {
+                deferred.resolve(null);
+            }
+        } else if (loadQueue.length > 0 && ongoingVisits < options.maxParallelLoad &&
+            (!error || options.stopOnError === false)) {
+            ongoingVisits += 1;
+            project.loadObject(loadQueue.shift(), dataLoaded);
+        }
+    }, 0);
+
+    return deferred.promise;
 }
 
 function importTestBaseSeed(baseSeed) {
@@ -149,6 +222,60 @@ function executeCommand(parameters) {
                 })
                 .catch(deferred.reject);
 
+            break;
+        case 'traverse':
+            core.traverse(variables[command.node], command.options || {}, function (node, next) {
+                var guid = core.getGuid(node);
+
+                if (command.log) {
+                    if (typeof command.log === 'string') {
+                        fs.appendFileSync(command.log, guid + '\n', 'utf8');
+                    } else {
+                        console.log(guid);
+                    }
+                }
+                next(null);
+            })
+                .then(function () {
+                    timeStamp();
+                    deferred.resolve(parameters);
+                })
+                .catch(deferred.reject);
+            break;
+        case 'dataTraverse':
+            traverseDataTree(parameters.project, core.getHash(variables[command.node]), command.options || {}, function (dataNode, next) {
+                var hash = dataNode[storageUtil.CONSTANTS.MONGO_ID];
+
+                if (command.log) {
+                    if (typeof command.log === 'string') {
+                        fs.appendFileSync(command.log, hash + '\n', 'utf8');
+                    } else {
+                        console.log(hash);
+                    }
+                }
+                next(null);
+            })
+                .then(function () {
+                    timeStamp();
+                    deferred.resolve(parameters);
+                })
+                .catch(deferred.reject);
+            break;
+        case 'dataCompare':
+            dataDiffer.diff(parameters.project, parameters.queue[command.start], parameters.queue[command.end])
+                .then(function (objects) {
+                    timeStamp();
+                    console.log('data:',Object.keys(objects).length);
+                    if (command.log) {
+                        if (typeof command.log === 'string') {
+                            fs.appendFileSync(command.log, JSON.stringify(objects, null, 2), 'utf8');
+                        } else {
+                            console.log(JSON.stringify(objects, null, 2));
+                        }
+                    }
+                    deferred.resolve(parameters);
+                })
+                .catch(deferred.reject);
             break;
         default:
             logger.error('unknown command:', command.command);
